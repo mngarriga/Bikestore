@@ -1,6 +1,7 @@
 package bikestore.db;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.*;
 
 @Entity
@@ -79,5 +80,88 @@ public class Category implements Serializable{
         return true;
     }
     
-    
+    //
+    // Active Record
+    //
+
+    // Queries
+    public static List<Category> findAll(EntityManager em) {
+        String sql = "SELECT c FROM Category c ORDER BY c.name";
+        TypedQuery<Category> query = em.createQuery(sql, Category.class);
+        return query.getResultList();
+    }
+
+    public static Category findById(EntityManager em, long id) {
+        return em.find(Category.class, id);
+    }
+
+    public static Category findByName(EntityManager em, String isbn) {
+        String sql = "SELECT c FROM Category c WHERE c.name = :name";
+        TypedQuery<Category> query = em.createQuery(sql, Category.class);
+        query.setParameter("name", isbn);
+        return query.getSingleResult();
+    }
+
+//    public static Category findByName(EntityManager em, String isbn) {
+//        String sql = "SELECT c FROM Category c WHERE c.name = :name";
+//        TypedQuery<Category> query = em.createQuery(sql, Category.class);
+//        query.setParameter("name", isbn);
+//        return query.getSingleResult();
+//    }
+//    
+    // Modifying
+
+    public boolean create(EntityManager em) {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            boolean res = createNoTransaction(em);
+            et.commit();
+            return res;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+//            throw new Exception("Error saving user");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean createNoTransaction(EntityManager em) {
+        if (em.contains(this)) {
+            return false;
+        } else {
+            em.persist(this);
+            em.flush();
+            return true;
+        }
+    }
+
+    public boolean remove(EntityManager em) {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            boolean res = removeNoTransaction(em);
+            et.commit();
+            return res;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+//            throw new Exception("Error saving user");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean removeNoTransaction(EntityManager em) {
+        if (em.find(Category.class, this.getId()) != null) {
+            em.remove(this);
+            em.flush();
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
