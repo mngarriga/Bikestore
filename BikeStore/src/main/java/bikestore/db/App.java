@@ -1,4 +1,4 @@
-package bikestore;
+package bikestore.db;
 
 /**
  * Hello world!
