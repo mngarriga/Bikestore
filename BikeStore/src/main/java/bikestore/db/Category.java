@@ -52,7 +52,7 @@ public class Category implements Serializable{
 
     @Override
     public String toString() {
-        return "Category{" + "name=" + name + '}';
+        return "name=" + name + '}';
     }
 
     //HasCode & Equals
