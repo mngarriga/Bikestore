@@ -21,9 +21,9 @@ public class Category implements Serializable{
     public Category() {
     }
 
-    public Category(String name, Category subCat) {
+    public Category(String name, Category catSup) {
         this.name = name;
-        this.catSup = subCat;
+        this.catSup = catSup;
     }
 
     public long getId() {
@@ -46,8 +46,8 @@ public class Category implements Serializable{
         return catSup;
     }
 
-    public void setSubCat(Category subCat) {
-        this.catSup = subCat;
+    public void setCatSup(Category catSup) {
+        this.catSup = catSup;
     }
     
 }
