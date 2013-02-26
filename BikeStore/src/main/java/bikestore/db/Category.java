@@ -14,7 +14,7 @@ public class Category implements Serializable{
     @Column(unique=true, nullable=false, length=100)
     private String name;
 
-    @OneToOne
+    @OneToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="id_cat_superior", referencedColumnName="id")
     private Category catSup;
 
@@ -102,13 +102,13 @@ public class Category implements Serializable{
         return query.getSingleResult();
     }
 
-//    public static Category findByName(EntityManager em, String isbn) {
-//        String sql = "SELECT c FROM Category c WHERE c.name = :name";
-//        TypedQuery<Category> query = em.createQuery(sql, Category.class);
-//        query.setParameter("name", isbn);
-//        return query.getSingleResult();
-//    }
-//    
+    public static List<Category> findSubCategories(EntityManager em, Category catSup) {
+        String sql = "SELECT c FROM Category c WHERE c.catSup = :catSup";
+        TypedQuery<Category> query = em.createQuery(sql, Category.class);
+        query.setParameter("catSup", catSup);
+        return query.getResultList();
+    }
+    
     // Modifying
 
     public boolean create(EntityManager em) {
