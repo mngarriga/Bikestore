@@ -49,5 +49,35 @@ public class Category implements Serializable{
     public void setCatSup(Category catSup) {
         this.catSup = catSup;
     }
+
+    @Override
+    public String toString() {
+        return "Category{" + "name=" + name + '}';
+    }
+
+    //HasCode & Equals
+    
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Category other = (Category) obj;
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+            return false;
+        }
+        return true;
+    }
+    
     
 }
