@@ -257,6 +257,25 @@ public class User implements Serializable {
     }
     
     public static User loginUser(EntityManager em, String login, String passwd) {
+        String sql = "SELECT u FROM User u WHERE u.login = :login AND u.passwd = :passwd";
+        TypedQuery<User> q = em.createQuery(sql,User.class);
+        q.setParameter("login", login);
+        q.setParameter("passwd", getSha(passwd));
+        try {
+            return q.getSingleResult();
+        }
+        catch (NoResultException ex)
+        {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+/*
+    public static User loginUser(EntityManager em, String login, String passwd) {
         String sql = "SELECT u FROM User u WHERE u.login = :login";
         TypedQuery<User> q = em.createQuery(sql,User.class);
         q.setParameter("login", login);
@@ -282,4 +301,5 @@ public class User implements Serializable {
             return null;
         }
     }
+    */
 }
