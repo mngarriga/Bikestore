@@ -14,10 +14,13 @@ public class Category implements Serializable{
     @Column(unique=true, nullable=false, length=100)
     private String name;
 
-    @OneToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch= FetchType.EAGER)
     @JoinColumn(name="id_cat_superior", referencedColumnName="id")
     private Category catSup;
 
+    @OneToMany(fetch= FetchType.LAZY, cascade= CascadeType.ALL)
+    @JoinColumn(name="id_cat_superior", referencedColumnName="id")
+    private List<Category> subCategories;
     
     public Category() {
     }
@@ -49,6 +52,14 @@ public class Category implements Serializable{
 
     public void setCatSup(Category catSup) {
         this.catSup = catSup;
+    }
+
+    public List<Category> getSubCategories() {
+        return subCategories;
+    }
+
+    public void setSubCategories(List<Category> subCategories) {
+        this.subCategories = subCategories;
     }
 
     @Override
@@ -85,25 +96,25 @@ public class Category implements Serializable{
     //
 
     // Queries
+    public static Category findById(EntityManager em, long id) {
+        return em.find(Category.class, id);
+    }
+    
     public static List<Category> findAll(EntityManager em) {
         String sql = "SELECT c FROM Category c ORDER BY c.id";
         TypedQuery<Category> query = em.createQuery(sql, Category.class);
         return query.getResultList();
     }
 
-    public static List<Category> findByPage(EntityManager em, int page, int usersPerPage) {
+    public static List<Category> findByPage(EntityManager em, int page, int categoryPerPage) {
 
         String sql = "SELECT c FROM Category c ORDER BY c.id";
         TypedQuery<Category> query = em.createQuery(sql, Category.class);
-        query.setFirstResult((page - 1) * usersPerPage);
-        query.setMaxResults(usersPerPage);
+        query.setFirstResult((page - 1) * categoryPerPage);
+        query.setMaxResults(categoryPerPage);
         return query.getResultList();
     }    
     
-    public static Category findById(EntityManager em, long id) {
-        return em.find(Category.class, id);
-    }
-
     public static Category findByName(EntityManager em, String name) {
         String sql = "SELECT c FROM Category c WHERE c.name = :name";
         TypedQuery<Category> query = em.createQuery(sql, Category.class);
@@ -112,7 +123,7 @@ public class Category implements Serializable{
     }
 
     public static List<Category> findSubCategories(EntityManager em, Category catSup) {
-        String sql = "SELECT c FROM Category c WHERE c.catSup = :catSup";
+        String sql = "SELECT c FROM Category c WHERE c.catSup = :catSup ORDER BY c.id";
         TypedQuery<Category> query = em.createQuery(sql, Category.class);
         query.setParameter("catSup", catSup);
         return query.getResultList();
@@ -124,9 +135,9 @@ public class Category implements Serializable{
         EntityTransaction et = em.getTransaction();
         try {
             et.begin();
-            createNoTransaction(em);
+            boolean res = createNoTransaction(em);
             et.commit();
-            return true;
+            return res;
         } catch (Exception e) {
             if (et.isActive()) {
                 et.rollback();
@@ -162,6 +173,7 @@ public class Category implements Serializable{
 
     public boolean removeNoTransaction(EntityManager em) {
         if (em.find(Category.class, this.getId()) != null) {
+            
             em.remove(this);
             em.flush();
             return true;

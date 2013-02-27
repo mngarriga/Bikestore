@@ -39,3 +39,5 @@ CREATE TABLE categories (
 );
 
 select * from users;
+select * from categories;
+
