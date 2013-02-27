@@ -6,7 +6,7 @@
     <class>bikestore.db.Category</class>
     <class>bikestore.db.User</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/mysql?zeroDateTimeBehavior=convertToNull"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/bikestore?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.password" value="password"/>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
       <property name="javax.persistence.jdbc.user" value="root"/>
