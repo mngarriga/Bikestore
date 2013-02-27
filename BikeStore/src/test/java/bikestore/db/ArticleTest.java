@@ -141,6 +141,7 @@ public class ArticleTest{
         assertEquals(expected,articles);        
     }
     
+    @Test
     public void test_findByPage() throws SQLException, Exception{
         cBici.create(em);
         cMountainBike.create(em);
@@ -156,6 +157,7 @@ public class ArticleTest{
         Assert.assertEquals(expected,articles);
     }
     
+    @Test
     public void test_findByRangePrice() throws Exception{
         cBici.create(em);
         cMountainBike.create(em);
@@ -171,6 +173,7 @@ public class ArticleTest{
         assertEquals(expected,articles);
     }
     
+    @Test
     public void test_findByPriceLessThan() throws Exception{
         cBici.create(em);
         cMountainBike.create(em);
@@ -211,6 +214,7 @@ public class ArticleTest{
         Assert.assertNull(article);
     }
     
+   @Test
     public void test_update() throws SQLException, Exception{
         cBici.create(em);
         cMountainBike.create(em);
