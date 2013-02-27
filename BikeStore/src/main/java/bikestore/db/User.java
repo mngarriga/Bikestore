@@ -168,6 +168,27 @@ public class User implements Serializable {
         em.flush();
     }
     
+    public User update(EntityManager em) {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            User user = updateNoTransaction(em);
+            et.commit();
+            return user;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+            return null;
+        }
+    }
+
+    public User updateNoTransaction(EntityManager em) {
+        User user = em.merge(this); // No utilizar em.refresh(this), no es correcto.
+        em.flush();
+        return user;
+    }
+
     public boolean remove(EntityManager em) {
         EntityTransaction et = em.getTransaction();
         try {
@@ -195,6 +216,12 @@ public class User implements Serializable {
         }
     }
     
+    public static long count(EntityManager em) {
+        String eql = "SELECT COUNT(u) FROM User u;";
+        TypedQuery<Long> query = em.createQuery(eql,Long.class);
+        return query.getSingleResult();
+    }
+
     public static User findById(EntityManager em,long id) {
         return em.find(User.class, id);
     }
