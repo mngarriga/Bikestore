@@ -5,6 +5,7 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,49 +19,39 @@ import javax.persistence.TypedQuery;
 
 @Entity
 @Table(name = "articles")
-public class Article{ 
-    
+public class Article {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    
     @Column(length = 100, unique = true, nullable = false)
     private String name;
-    
     @Column(length = 255, nullable = false)
     private String description;
-    
-    @ManyToOne(fetch= FetchType.LAZY)  
-    @JoinColumn(name ="id_category",referencedColumnName="id",nullable=false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_category", referencedColumnName = "id", nullable = false)
     private Category category;
-    
-    @Column(length=8,precision=2,nullable = false)
+    @Column(length = 8, precision = 2, nullable = false)
     private double price;
-    
     @Column(nullable = false)
     private int stock;
-    
     @Lob
-    @Basic(fetch= FetchType.LAZY)
-    private Byte[] picture;    
+    @Basic(fetch = FetchType.LAZY)
+    private Byte[] picture;
 
-    
 //  CONSTRUCTORS -----------------------------------------------------------
-    
-    
     public Article(String name, String description, Category idCategory, double price, int stock) {
         this.name = name;
         this.description = description;
         this.category = idCategory;
         this.price = price;
-        this.stock = stock;        
+        this.stock = stock;
     }
 
     public Article() {
     }
 
 //  GETTERS & SETTERS ----------------------------------------------------------
-
     public long getId() {
         return id;
     }
@@ -117,9 +108,7 @@ public class Article{
         this.picture = picture;
     }
 
-    
 // toString, hashCode, equals --------------------------------------------------
-    
     @Override
     public String toString() {
         return "Article{" + "name=" + name + ", price=" + price + '}';
@@ -145,66 +134,133 @@ public class Article{
             return false;
         }
         return true;
-    }    
-    
+    }
+
 //-----------------------------------------------------------------------------
 //                              ACTIVE RECORD
 //-----------------------------------------------------------------------------
-    
-//Queries-------------------------------------------------------------------
-
-
+//Queries----------------------------------------------------------------------
     public static Article findById(EntityManager em, long id) {
         return em.find(Article.class, id);
     }
 
-   public static Article findByName(EntityManager em, String name) {
+    public static Article findByName(EntityManager em, String name) {
         String sql = "SELECT x FROM Article x WHERE x.name = :name";
         TypedQuery<Article> query = em.createQuery(sql, Article.class);
-        query.setParameter("name",name);        
+        query.setParameter("name", name);
         return query.getSingleResult();
     }
-   
-   public static List<Article> findByPrice(EntityManager em, double price) {
+
+    public static List<Article> findByPrice(EntityManager em, double price) {
         String sql = "SELECT x FROM Article x WHERE x.price = :price";
         TypedQuery<Article> query = em.createQuery(sql, Article.class);
-        query.setParameter("price",price);        
+        query.setParameter("price", price);
         return query.getResultList();
     }
-   
-   public static List<Article> findByRangePrice(EntityManager em, double price_min,double price_max) {
+
+    public static List<Article> findByRangePrice(EntityManager em, double price_min, double price_max) {
         String sql = "SELECT x FROM Article x WHERE x.price>= :price_min AND x.price<=:price_max";
         TypedQuery<Article> query = em.createQuery(sql, Article.class);
-        query.setParameter(":price_min",price_min);        
-        query.setParameter(":price_max",price_max);        
+        query.setParameter(":price_min", price_min);
+        query.setParameter(":price_max", price_max);
         return query.getResultList();
     }
-   
-   public static List<Article> findByPriceLessThan(EntityManager em, double price) {
+
+    public static List<Article> findByPriceLessThan(EntityManager em, double price) {
         String sql = "SELECT x FROM Article x WHERE x.price<=:price";
         TypedQuery<Article> query = em.createQuery(sql, Article.class);
-        query.setParameter(":price",price);                 
+        query.setParameter(":price", price);
         return query.getResultList();
     }
-   
+
     public static List<Article> findAll(EntityManager em) {
         String sql = "SELECT x FROM Article";
         TypedQuery<Article> query = em.createQuery(sql, Article.class);
         return query.getResultList();
     }
 
-   
+    public static List<Article> findByPage(EntityManager em, int page, int articlesPerPage) {
+
+        String sql = "SELECT x FROM Article x ORDER BY x.id";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setFirstResult((page - 1) * articlesPerPage);
+        query.setMaxResults(articlesPerPage);
+        return query.getResultList();
+    }
+
+//Modifying --------------------------------------------------------------------
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    public boolean create(EntityManager em) throws Exception {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            createNoTransaction(em);
+            et.commit();
+            return true;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean createNoTransaction(EntityManager em) {
+        if (em.contains(this)) {
+            return false;
+        } else {
+            em.persist(this);
+            em.flush();
+            return true;
+        }
+    }
+
+    public boolean remove(EntityManager em) {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            boolean res = removeNoTransaction(em);
+            et.commit();
+            return res;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean removeNoTransaction(EntityManager em) {
+        if (em.find(Article.class, this.getId()) != null) {
+            em.remove(this);
+            em.flush();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Article update(EntityManager em) {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            Article article = updateNoTransaction(em);
+            et.commit();
+            return article;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+            return null;
+        }
+    }
+
+    private Article updateNoTransaction(EntityManager em) {
+        Article art = em.merge(this);
+        em.flush();
+        return art;
+    }
 } //class
-
-
 
