@@ -1,7 +1,9 @@
 package bikestore.db;
 
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.TypedQuery;
 
 @Entity
 @Table(name = "articles")
@@ -139,6 +142,63 @@ public class Article{
         }
         return true;
     }    
+    
+//-----------------------------------------------------------------------------
+//                              ACTIVE RECORD
+//-----------------------------------------------------------------------------
+    
+//Queries-------------------------------------------------------------------
+
+
+    public static Article findById(EntityManager em, long id) {
+        return em.find(Article.class, id);
+    }
+
+   public static Article findByName(EntityManager em, String name) {
+        String sql = "SELECT x FROM Article x WHERE x.name = :name";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setParameter("name",name);        
+        return query.getSingleResult();
+    }
+   
+   public static List<Article> findByPrice(EntityManager em, double price) {
+        String sql = "SELECT x FROM Article x WHERE x.price = :price";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setParameter("price",price);        
+        return query.getResultList();
+    }
+   
+   public static List<Article> findByRangePrice(EntityManager em, double price_min,double price_max) {
+        String sql = "SELECT x FROM Article x WHERE x.price>= :price_min AND x.price<=:price_max";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setParameter(":price_min",price_min);        
+        query.setParameter(":price_max",price_max);        
+        return query.getResultList();
+    }
+   
+   public static List<Article> findByPriceLessThan(EntityManager em, double price) {
+        String sql = "SELECT x FROM Article x WHERE x.price<=:price";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setParameter(":price",price);                 
+        return query.getResultList();
+    }
+   
+    public static List<Article> findAll(EntityManager em) {
+        String sql = "SELECT x FROM Article";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        return query.getResultList();
+    }
+
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 } //class
 
