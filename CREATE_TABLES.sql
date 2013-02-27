@@ -37,3 +37,5 @@ CREATE TABLE categories (
 	PRIMARY KEY (id),
 	UNIQUE KEY (name)
 );
+
+select * from users;
