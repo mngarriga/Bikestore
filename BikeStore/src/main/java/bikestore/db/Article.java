@@ -1,21 +1,7 @@
 package bikestore.db;
 
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "articles")
@@ -24,8 +10,10 @@ public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(length = 100, unique = true, nullable = false)
-    private String name;
+    @Column(length = 30, nullable = false)
+    private String brand;
+    @Column(length = 100, nullable = false)
+    private String model;
     @Column(length = 255, nullable = false)
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,8 +28,9 @@ public class Article {
     private Byte[] picture;
 
 //  CONSTRUCTORS -----------------------------------------------------------
-    public Article(String name, String description, Category idCategory, double price, int stock) {
-        this.name = name;
+    public Article(String brand, String model, String description, Category idCategory, double price, int stock) {
+        this.brand = brand;
+        this.model = model;
         this.description = description;
         this.category = idCategory;
         this.price = price;
@@ -60,12 +49,19 @@ public class Article {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getBrand() {
+        return brand;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public String getDescription() {
@@ -111,13 +107,13 @@ public class Article {
 // toString, hashCode, equals --------------------------------------------------
     @Override
     public String toString() {
-        return "Article{" + "name=" + name + ", price=" + price + '}';
+        return "Article{" + "name=" + brand + ", price=" + price + '}';
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 41 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 41 * hash + (this.brand != null ? this.brand.hashCode() : 0);
         return hash;
     }
 
@@ -130,7 +126,7 @@ public class Article {
             return false;
         }
         final Article other = (Article) obj;
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+        if ((this.brand == null) ? (other.brand != null) : !this.brand.equals(other.brand)) {
             return false;
         }
         return true;
@@ -144,10 +140,18 @@ public class Article {
         return em.find(Article.class, id);
     }
 
-    public static Article findByName(EntityManager em, String name) {
-        String sql = "SELECT x FROM Article x WHERE x.name = :name";
+    public static List<Article> findByBrand(EntityManager em, String brand) {
+        String sql = "SELECT x FROM Article x WHERE x.brand = :brand";
         TypedQuery<Article> query = em.createQuery(sql, Article.class);
-        query.setParameter("name", name);
+        query.setParameter("brand", brand);
+        return query.getResultList();
+    }
+    
+    public static Article findByBrandModel(EntityManager em, String brand, String model) {
+        String sql = "SELECT x FROM Article x WHERE x.brand = :brand AND x.model = :model";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setParameter("brand", brand);
+        query.setParameter("model", model);
         return query.getSingleResult();
     }
 
@@ -157,28 +161,13 @@ public class Article {
         query.setParameter("price", price);
         return query.getResultList();
     }
-
-    public static List<Article> findByRangePrice(EntityManager em, double price_min, double price_max) {
-        String sql = "SELECT x FROM Article x WHERE x.price>= :price_min AND x.price<=:price_max";
-        TypedQuery<Article> query = em.createQuery(sql, Article.class);
-        query.setParameter(":price_min", price_min);
-        query.setParameter(":price_max", price_max);
-        return query.getResultList();
-    }
-
-    public static List<Article> findByPriceLessThan(EntityManager em, double price) {
-        String sql = "SELECT x FROM Article x WHERE x.price<=:price";
-        TypedQuery<Article> query = em.createQuery(sql, Article.class);
-        query.setParameter(":price", price);
-        return query.getResultList();
-    }
-
+    
     public static List<Article> findAll(EntityManager em) {
-        String sql = "SELECT x FROM Article";
+        String sql = "SELECT x FROM Article x";
         TypedQuery<Article> query = em.createQuery(sql, Article.class);
         return query.getResultList();
     }
-
+    
     public static List<Article> findByPage(EntityManager em, int page, int articlesPerPage) {
 
         String sql = "SELECT x FROM Article x ORDER BY x.id";
@@ -187,7 +176,25 @@ public class Article {
         query.setMaxResults(articlesPerPage);
         return query.getResultList();
     }
+    
+    public static List<Article> findByRangePrice(EntityManager em, double price_min, double price_max) {
+        String sql = "SELECT x FROM Article x WHERE x.price>= :price_min AND x.price<=:price_max";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setParameter(":price_min", price_min);
+        query.setParameter(":price_max", price_max);
+        return query.getResultList();
+    }
+    
 
+    public static List<Article> findByPriceLessThan(EntityManager em, double price) {
+        String sql = "SELECT x FROM Article x WHERE x.price<=:price";
+        TypedQuery<Article> query = em.createQuery(sql, Article.class);
+        query.setParameter(":price", price);
+        return query.getResultList();
+    }
+    
+  
+    
 //Modifying --------------------------------------------------------------------
     
     public boolean create(EntityManager em) throws Exception {
