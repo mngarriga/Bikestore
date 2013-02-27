@@ -17,18 +17,18 @@ public class User implements Serializable {
     private String passwd;
     private String fullName;
     private String email;
-    private String adress;
+    private String address;
     private String city;
     private String country;
     private int zipcode;
 
-    public User(String login, String passwd, String fullName, String email, String adress, String city, String country, int zipcode) {
+    public User(String login, String passwd, String fullName, String email, String address, String city, String country, int zipcode) {
         this.login = login;
 //        setPasswd(passwd);
         this.passwd = getSha(passwd);
         this.fullName = fullName;
         this.email = email;
-        this.adress = adress;
+        this.address = address;
         this.city = city;
         this.country = country;
         this.zipcode = zipcode;
@@ -88,12 +88,12 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getCity() {

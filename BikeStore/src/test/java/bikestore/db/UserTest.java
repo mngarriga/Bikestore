@@ -12,7 +12,12 @@ public class UserTest {
     
     @Before
     public void beforeTest() {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("bikestorePU");
+        em = emf.createEntityManager();
+        EntityTransaction et = em.getTransaction();
+        et.begin();
         emptyTable();
+        et.commit();
         defineUsers();
         
     }
@@ -20,14 +25,7 @@ public class UserTest {
         String sql = "TRUNCATE TABLE users";
         Query q = em.createNativeQuery(sql);
         q.executeUpdate();
-        user1 = new User("fjmv28"
-                , "subeguara2009"
-                , "Francisco Javier Martin Villuendas"
-                , "fjmv28@hotmail.com"
-                , "Avenida de Madrid 174"
-                , "Zaragoza"
-                , "España"
-                , 50017);
+
     }
     
     private void defineUsers() {
@@ -121,7 +119,9 @@ public class UserTest {
         assertTrue(result);
         
         assertEquals(user1,User.findById(em, user1.getId()));
+        assertEquals(user2,User.findById(em, user2.getId()));
         
+        assertEquals(User.count(em),2l);
         
     }
 }
