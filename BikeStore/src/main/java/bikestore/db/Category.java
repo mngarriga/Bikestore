@@ -86,19 +86,28 @@ public class Category implements Serializable{
 
     // Queries
     public static List<Category> findAll(EntityManager em) {
-        String sql = "SELECT c FROM Category c";
+        String sql = "SELECT c FROM Category c ORDER BY c.id";
         TypedQuery<Category> query = em.createQuery(sql, Category.class);
         return query.getResultList();
     }
 
+    public static List<Category> findByPage(EntityManager em, int page, int usersPerPage) {
+
+        String sql = "SELECT c FROM Category c ORDER BY c.id";
+        TypedQuery<Category> query = em.createQuery(sql, Category.class);
+        query.setFirstResult((page - 1) * usersPerPage);
+        query.setMaxResults(usersPerPage);
+        return query.getResultList();
+    }    
+    
     public static Category findById(EntityManager em, long id) {
         return em.find(Category.class, id);
     }
 
-    public static Category findByName(EntityManager em, String isbn) {
+    public static Category findByName(EntityManager em, String name) {
         String sql = "SELECT c FROM Category c WHERE c.name = :name";
         TypedQuery<Category> query = em.createQuery(sql, Category.class);
-        query.setParameter("name", isbn);
+        query.setParameter("name", name);
         return query.getSingleResult();
     }
 
@@ -115,15 +124,13 @@ public class Category implements Serializable{
         EntityTransaction et = em.getTransaction();
         try {
             et.begin();
-            boolean res = createNoTransaction(em);
+            createNoTransaction(em);
             et.commit();
-            return res;
+            return true;
         } catch (Exception e) {
             if (et.isActive()) {
                 et.rollback();
             }
-//            throw new Exception("Error saving user");
-            e.printStackTrace();
             return false;
         }
     }
@@ -149,8 +156,6 @@ public class Category implements Serializable{
             if (et.isActive()) {
                 et.rollback();
             }
-//            throw new Exception("Error saving user");
-            e.printStackTrace();
             return false;
         }
     }
@@ -163,5 +168,26 @@ public class Category implements Serializable{
         } else {
             return false;
         }
+    }
+
+    public Category update(EntityManager em) {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            Category cat = updateNoTransaction(em);
+            et.commit();
+            return cat;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+            return null;
+        }
+    }
+    
+    public Category updateNoTransaction(EntityManager em) {
+        Category cat = em.merge(this);
+        em.flush();
+        return cat;
     }
 }
