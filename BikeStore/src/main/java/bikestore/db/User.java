@@ -67,8 +67,8 @@ public class User implements Serializable {
             return new String(sha.digest(s.getBytes()));
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
             return null;
+        } finally {
         }
     }
 
@@ -250,10 +250,9 @@ public class User implements Serializable {
             return login.equals(user.getLogin());
         } catch (Exception ex)
         {
-            
+            return false;        
         }
         finally {
-            return false;        
         }
     }
     
@@ -265,14 +264,19 @@ public class User implements Serializable {
             User user = q.getSingleResult();
             
             // check user
-            if (login.equals(user.getLogin())) {
+            if (user != null && login.equals(user.getLogin())) {
                 // check passwd
                 if(user.getPasswd().equals(getSha(passwd))) {
                     return user;
                 }
             }
             return null;
-        } catch (Exception ex)
+        }
+        catch (NoResultException ex)
+        {
+            return null;
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
             return null;
