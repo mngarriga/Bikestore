@@ -55,12 +55,26 @@ public class CategoryTest {
     }
     
     @Test
-   // @Ignore
     public void test_findById(){
         cBici.create(em);
         
         Category res = Category.findById(em, cBici.getId());
         assertEquals(res, cBici);
     }
+    
+    @Test
+    public void test_findAll(){
+        cBici.create(em);
+        cAcce.create(em);
+        cRopa.create(em);
+        cBMX.create(em);
+        cVTT.create(em);
+        cCullote.create(em);
+        cMaillot.create(em);
+        
+        
+    }
+    
+    
     
 }
