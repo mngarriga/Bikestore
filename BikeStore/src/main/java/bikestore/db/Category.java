@@ -86,7 +86,7 @@ public class Category implements Serializable{
 
     // Queries
     public static List<Category> findAll(EntityManager em) {
-        String sql = "SELECT c FROM Category c ORDER BY c.name";
+        String sql = "SELECT c FROM Category c";
         TypedQuery<Category> query = em.createQuery(sql, Category.class);
         return query.getResultList();
     }
