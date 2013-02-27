@@ -27,7 +27,7 @@ CREATE TABLE articles (
 	stock		INT NOT NULL,
 	picture		BLOB,
 	PRIMARY KEY (id),
-	UNIQUE KEY (name)	
+	UNIQUE KEY (brand,model)	
 );
 
 CREATE TABLE categories (
