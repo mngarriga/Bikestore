@@ -19,14 +19,15 @@ CREATE TABLE users (
 
 CREATE TABLE articles (
 	id 			INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	name		VARCHAR (100) NOT NULL,
+	brand		VARCHAR (30) NOT NULL,		
+	model		VARCHAR (100) NOT NULL,
 	description VARCHAR (255) NOT NULL,
 	id_category	INT UNSIGNED NOT NULL,
 	price		DECIMAL(8,2) NOT NULL,
 	stock		INT NOT NULL,
 	picture		BLOB,
 	PRIMARY KEY (id),
-	UNIQUE KEY (name)	
+	UNIQUE KEY (brand,model)	
 );
 
 CREATE TABLE categories (
@@ -36,3 +37,5 @@ CREATE TABLE categories (
 	PRIMARY KEY (id),
 	UNIQUE KEY (name)
 );
+
+select * from users;

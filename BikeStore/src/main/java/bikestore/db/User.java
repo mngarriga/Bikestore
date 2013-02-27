@@ -17,18 +17,18 @@ public class User implements Serializable {
     private String passwd;
     private String fullName;
     private String email;
-    private String adress;
+    private String address;
     private String city;
     private String country;
     private int zipcode;
 
-    public User(String login, String passwd, String fullName, String email, String adress, String city, String country, int zipcode) {
+    public User(String login, String passwd, String fullName, String email, String address, String city, String country, int zipcode) {
         this.login = login;
 //        setPasswd(passwd);
         this.passwd = getSha(passwd);
         this.fullName = fullName;
         this.email = email;
-        this.adress = adress;
+        this.address = address;
         this.city = city;
         this.country = country;
         this.zipcode = zipcode;
@@ -88,12 +88,12 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getCity() {
@@ -168,6 +168,27 @@ public class User implements Serializable {
         em.flush();
     }
     
+    public User update(EntityManager em) {
+        EntityTransaction et = em.getTransaction();
+        try {
+            et.begin();
+            User user = updateNoTransaction(em);
+            et.commit();
+            return user;
+        } catch (Exception e) {
+            if (et.isActive()) {
+                et.rollback();
+            }
+            return null;
+        }
+    }
+
+    public User updateNoTransaction(EntityManager em) {
+        User user = em.merge(this); // No utilizar em.refresh(this), no es correcto.
+        em.flush();
+        return user;
+    }
+
     public boolean remove(EntityManager em) {
         EntityTransaction et = em.getTransaction();
         try {
@@ -195,6 +216,12 @@ public class User implements Serializable {
         }
     }
     
+    public static long count(EntityManager em) {
+        String eql = "SELECT COUNT(u) FROM User u;";
+        TypedQuery<Long> query = em.createQuery(eql,Long.class);
+        return query.getSingleResult();
+    }
+
     public static User findById(EntityManager em,long id) {
         return em.find(User.class, id);
     }
